@@ -1,4 +1,3 @@
-import { UpdateUserUseCase } from '../use-cases/update-user.js';
 import {
   checkIfEmailIsValid,
   checkIfIdIsValid,
@@ -12,6 +11,10 @@ import {
 } from './helpers/index.js';
 
 export class UpdateUserController {
+  constructor(updateUserUseCase) {
+    this.updateUserUseCase = updateUserUseCase;
+  }
+
   async execute(HttpRequest) {
     try {
       const userId = HttpRequest.params.userId;
@@ -56,8 +59,7 @@ export class UpdateUserController {
       }
 
       // chamar UseCase de atualizar usuario
-      const updateUserUseCase = new UpdateUserUseCase();
-      const updatedUser = await updateUserUseCase.execute(
+      const updatedUser = await this.updateUserUseCase.execute(
         userId,
         updateUserParams,
       );
