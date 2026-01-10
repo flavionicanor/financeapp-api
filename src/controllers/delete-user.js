@@ -5,9 +5,12 @@ import {
   serverError,
   userNotFoundResponse,
 } from './helpers/index.js';
-import { DeleteUserUseCase } from '../use-cases/index.js';
 
 export class DeleteUserController {
+  constructor(deleteUserUseCase) {
+    this.deleteUserUseCase = deleteUserUseCase;
+  }
+
   async execute(HttpRequest) {
     try {
       const userId = HttpRequest.params.userId;
@@ -17,9 +20,7 @@ export class DeleteUserController {
         return invalidIdResponse();
       }
 
-      const deleteUserUseCase = new DeleteUserUseCase();
-
-      const deleteUser = await deleteUserUseCase.execute(userId);
+      const deleteUser = await this.deleteUserUseCase.execute(userId);
 
       if (!deleteUser) {
         return userNotFoundResponse();
