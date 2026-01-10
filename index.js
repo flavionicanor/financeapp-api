@@ -6,10 +6,24 @@ import {
   GetUserByIdController,
   UpdateUserController,
 } from './src/controllers/index.js';
+import { GetUserByIdUseCase } from './src/use-cases/index.js';
+import { PostgresGetUserByIdRepository } from './src/repositories/postgres/index.js';
 
 const app = express();
 
 app.use(express.json());
+
+app.get('/api/users/:userId', async (request, response) => {
+  const getUserByIdRepository = new PostgresGetUserByIdRepository(); // You should instantiate your actual repository here
+
+  const getUserByIdUseCase = new GetUserByIdUseCase(getUserByIdRepository);
+
+  const getUserByIdController = new GetUserByIdController(getUserByIdUseCase);
+
+  const { statusCode, body } = await getUserByIdController.execute(request);
+
+  response.status(statusCode).send(body);
+});
 
 app.post('/api/users', async (req, res) => {
   const createUserController = new CreaUserController();
@@ -21,14 +35,6 @@ app.patch('/api/users/:userId', async (request, response) => {
   const updateUserController = new UpdateUserController();
 
   const { statusCode, body } = await updateUserController.execute(request);
-
-  response.status(statusCode).send(body);
-});
-
-app.get('/api/users/:userId', async (request, response) => {
-  const getUserByIdController = new GetUserByIdController();
-
-  const { statusCode, body } = await getUserByIdController.execute(request);
 
   response.status(statusCode).send(body);
 });
