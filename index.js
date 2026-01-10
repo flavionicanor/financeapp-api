@@ -1,13 +1,20 @@
 import 'dotenv/config.js';
 import express from 'express';
 import {
-  CreaUserController,
+  CreateUserController,
   DeleteUserController,
   GetUserByIdController,
   UpdateUserController,
 } from './src/controllers/index.js';
-import { GetUserByIdUseCase } from './src/use-cases/index.js';
-import { PostgresGetUserByIdRepository } from './src/repositories/postgres/index.js';
+import {
+  CreateUserUseCase,
+  GetUserByIdUseCase,
+} from './src/use-cases/index.js';
+import {
+  PostgresCreateUserRepository,
+  PostgresGetUserByEmailRepository,
+  PostgresGetUserByIdRepository,
+} from './src/repositories/postgres/index.js';
 
 const app = express();
 
@@ -26,8 +33,19 @@ app.get('/api/users/:userId', async (request, response) => {
 });
 
 app.post('/api/users', async (req, res) => {
-  const createUserController = new CreaUserController();
+  const postgresGetUserByEmailRepository =
+    new PostgresGetUserByEmailRepository();
+
+  const postgresCreateUserRepository = new PostgresCreateUserRepository();
+
+  const createUserUseCase = new CreateUserUseCase(
+    postgresGetUserByEmailRepository,
+    postgresCreateUserRepository,
+  );
+
+  const createUserController = new CreateUserController(createUserUseCase);
   const { statusCode, body } = await createUserController.execute(req);
+
   res.status(statusCode).send(body);
 });
 

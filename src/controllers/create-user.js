@@ -1,5 +1,3 @@
-import { CreateUserUseCase } from '../use-cases/create-user.js';
-
 import { EmailAlreadyInUseError } from '../errors/userEmail.js';
 import {
   checkIfEmailIsValid,
@@ -11,7 +9,10 @@ import {
   serverError,
 } from './helpers/index.js';
 
-export class CreaUserController {
+export class CreateUserController {
+  constructor(createUserUseCase) {
+    this.createUserUseCase = createUserUseCase;
+  }
   async execute(httpRequest) {
     const params = httpRequest.body;
 
@@ -38,9 +39,8 @@ export class CreaUserController {
     }
 
     // chamar UseCase de criar usuario
-    const createUserUseCase = new CreateUserUseCase();
     try {
-      const user = await createUserUseCase.execute(params);
+      const user = await this.createUserUseCase.execute(params);
 
       // retornar resposta ao usuario
       return created(user);
